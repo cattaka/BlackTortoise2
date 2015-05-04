@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<color name="TitleColor">#FFFFFF</color>
+<color name="WindowBackground">#70CC8D</color>
+<color name="LabelTextColor">#000000</color>
+<color name="ButtonTextColor">#000000</color>
+<color name="ListViewBackground">#70CC8D</color>
+<color name="ListViewEdge">#0184D1</color>
+
+</resources>

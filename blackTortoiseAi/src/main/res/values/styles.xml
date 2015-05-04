@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Styles for extends -->
+    <style name="DisplayPanel">
+        <item name="android:background">@drawable/display_panel</item>
+        <item name="android:textColor">@color/LabelTextColor</item>
+        <item name="android:padding">5dp</item>
+    </style>
+
+    <style name="SyncStateList">
+        <item name="android:background">@drawable/list_view</item>
+        <item name="android:cacheColorHint">@color/ListViewEdge</item>
+    </style>
+
+    <style name="SyncStateListItem">
+        <item name="android:background">@color/ListViewBackground</item>
+    </style>
+
+    <style name="SyncStateListItemText">
+        <item name="android:textSize">30dp</item>
+    </style>
+
+    <!-- Styles for theme -->
+    <style name="CustomWindowTitle">
+        <item name="android:textColor">@color/TitleColor</item>
+    </style>
+
+    <style name="CtkButton">
+        <item name="android:textColor">@color/ButtonTextColor</item>
+        <item name="android:background">@drawable/button</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="LabelText">
+        <item name="android:textColor">@color/LabelTextColor</item>
+    </style>
+
+</resources>

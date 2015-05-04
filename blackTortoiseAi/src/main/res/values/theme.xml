@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<style name="CtkTheme" parent="@android:style/Theme.Holo.Light.NoActionBar">
+    <item name="android:windowTitleStyle">@style/CustomWindowTitle</item>
+    <item name="android:windowBackground">@color/WindowBackground</item>
+    <item name="android:buttonStyle">@style/CtkButton</item>
+    <item name="android:textViewStyle">@style/LabelText</item>
+</style>
+
+</resources>

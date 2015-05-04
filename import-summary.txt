@@ -1,0 +1,126 @@
+ECLIPSE ANDROID PROJECT IMPORT SUMMARY
+======================================
+
+Manifest Merging:
+-----------------
+Your project uses libraries that provide manifests, and your Eclipse
+project did not explicitly turn on manifest merging. In Android Gradle
+projects, manifests are always merged (meaning that contents from your
+libraries' manifests will be merged into the app manifest. If you had
+manually copied contents from library manifests into your app manifest
+you may need to remove these for the app to build correctly.
+
+Ignored Files:
+--------------
+The following files were *not* copied into the new Gradle project; you
+should evaluate whether these are still needed in your project and if
+so manually move them:
+
+From BlackTortoise:
+* .factorypath
+* .gitignore
+* factory/
+* factory/GenDbHandler_0.9.7.jar
+* ic_launcher-web.png
+* misc/
+* misc/CircuitDesign/
+* misc/CircuitDesign/CircuitDesign.odg
+* misc/Packet/
+* misc/Packet/PacketStructure.odg
+* misc/arduino/
+* misc/arduino/BlackTortoise/
+* misc/arduino/BlackTortoise/BlackTortoise.ino
+* misc/arduino/BlackTortoise/Geppa.cpp
+* misc/arduino/BlackTortoise/Geppa.h
+* misc/cad/
+* misc/cad/.gitignore
+* misc/cad/BatteryFrame2.gcode
+* misc/cad/BatteryFrame2.stl
+* misc/cad/Eneloop.fcstd
+* misc/cad/HeadFrame.gcode
+* misc/cad/HeadFrame.stl
+* misc/cad/HeadMount.gcode
+* misc/cad/HeadMount.stl
+* misc/cad/MirrorMount.fcstd
+* misc/cad/MirrorMount.gcode
+* misc/cad/MirrorMount.stl
+* misc/cad/Servo.fcstd
+* misc/cad/Servo.fcstd1
+* misc/cad/ServoGuideL.stl
+* misc/cad/ServoGuides.gcode
+* misc/cad/ServoGuides.stl
+* misc/cad/ServoL.fcstd
+* misc/cad/UniversalPlate.fcstd
+* misc/cad/UniversalPlate.stl
+* misc/cad/androidtank.fcstd
+* misc/cad/androidtank_10.fcstd
+* misc/cad/androidtank_11.fcstd
+* misc/cad/androidtank_2.fcstd
+* misc/cad/androidtank_3.fcstd
+* misc/cad/androidtank_4.fcstd
+* misc/cad/androidtank_5.fcstd
+* misc/cad/androidtank_6.fcstd
+* misc/cad/androidtank_7.fcstd
+* misc/cad/androidtank_8.fcstd
+* misc/cad/androidtank_9.fcstd
+* misc/image/
+* misc/image/controller_head.png
+* misc/image/controller_head.svg
+* misc/image/controller_move.png
+* misc/image/controller_move.svg
+* misc/uml/
+* misc/uml/.gitignore
+* misc/uml/diagram.zargo
+* misc/uml/diagram.zargo~
+* proguard-project.txt
+From LibBlackTortoise:
+* .gitignore
+* README.txt
+* ic_launcher-web.png
+* proguard-project.txt
+
+Replaced Jars with Dependencies:
+--------------------------------
+The importer recognized the following .jar files as third party
+libraries and replaced them with Gradle dependencies instead. This has
+the advantage that more explicit version information is known, and the
+libraries can be updated automatically. However, it is possible that
+the .jar file in your project was of an older version than the
+dependency we picked, which could render the project not compileable.
+You can disable the jar replacement in the import wizard and try again:
+
+android-support-v4.jar => com.android.support:support-v4:18.0.0
+
+Moved Files:
+------------
+Android Gradle projects use a different directory structure than ADT
+Eclipse projects. Here's how the projects were restructured:
+
+In LibBlackTortoise:
+* AndroidManifest.xml => libBlackTortoise/src/main/AndroidManifest.xml
+* libs/ftdriver.jar => libBlackTortoise/libs/ftdriver.jar
+* libs/libgeppa.jar => libBlackTortoise/libs/libgeppa.jar
+* res/ => libBlackTortoise/src/main/res/
+* src/ => libBlackTortoise/src/main/java/
+* src/net/blacktortoise/androidlib/data/BtPacket.aidl => libBlackTortoise/src/main/aidl/net/blacktortoise/androidlib/data/BtPacket.aidl
+In BlackTortoise:
+* AndroidManifest.xml => blackTortoise/src/main/AndroidManifest.xml
+* lint.xml => blackTortoise/lint.xml
+* res/ => blackTortoise/src/main/res/
+* src/ => blackTortoise/src/main/java/
+* src/net/blacktortoise/android/entity/.gitignore => blackTortoise/src/main/resources/net/blacktortoise/android/entity/.gitignore
+
+Next Steps:
+-----------
+You can now build the project. The Gradle project needs network
+connectivity to download dependencies.
+
+Bugs:
+-----
+If for some reason your project does not build, and you determine that
+it is due to a bug or limitation of the Eclipse to Gradle importer,
+please file a bug at http://b.android.com with category
+Component-Tools.
+
+(This import summary is for your information only, and can be deleted
+after import once you are satisfied with the results.)

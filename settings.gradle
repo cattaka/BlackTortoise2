@@ -1,0 +1,4 @@
+include ':libBlackTortoise'
+include ':blackTortoise'
+include ':blackTortoiseAi'
+include ':openCVLibrary2410'
