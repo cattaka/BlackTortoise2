@@ -22,8 +22,8 @@ SoftwareSerial g_debug(DEBUG_CONSOLE_RX, DEBUG_CONSOLE_TX);
 // =============================
 // Constants for servos
 #define SERVO_NUM 2
-#define SERVO_YAW   7
-#define SERVO_PITCH  8
+#define SERVO_YAW   10
+#define SERVO_PITCH  12
 // =============================
 
 // =============================
