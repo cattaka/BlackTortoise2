@@ -123,32 +123,20 @@ public class MyCapture {
             } else {
                 Core.flip(mTemp, mTemp, 0);
             }
-            Core.transpose(mTemp, mTemp);
-            synchronized (mPicture) {
-                mTemp.copyTo(mPicture);
-            }
+            Core.transpose(mTemp, mPicture);
 
-            sHander.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (mMyCaptureListener != null) {
-                        synchronized (mPicture) {
-                            mMyCaptureListener.onTakePicture(mPicture);
-                        }
-                    }
-                }
-            });
+            if (mMyCaptureListener != null) {
+                mMyCaptureListener.onTakePicture(mPicture);
+            }
         }
     };
 
     public boolean getPicture(Mat dest) {
-        synchronized (mPicture) {
-            if (mPicture.size().width == 0 || mPicture.height() == 0) {
-                return false;
-            } else {
-                mPicture.copyTo(dest);
-                return true;
-            }
+        if (mPicture.size().width == 0 || mPicture.height() == 0) {
+            return false;
+        } else {
+            mPicture.copyTo(dest);
+            return true;
         }
     }
 
