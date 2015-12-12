@@ -63,7 +63,7 @@ public class TagDetector {
     }
 
     public TagDetector(FeatureDetector detector, DescriptorExtractor extractor,
-            DescriptorMatcher matcher) {
+                       DescriptorMatcher matcher) {
         this();
         mDetector = detector;
         mExtractor = extractor;
@@ -131,7 +131,7 @@ public class TagDetector {
     }
 
     public void detectTags(List<TagDetectResult> dst, Mat src, Mat resultMat,
-            EnumSet<DetectFlags> flags) {
+                           EnumSet<DetectFlags> flags) {
         Mat grayscale2 = toGrayscale(src);
 
         KeyPoint[] keypoints;
@@ -193,7 +193,7 @@ public class TagDetector {
     }
 
     public TagDetectResult detectTagInner(Mat src, Mat resultMat, int tagKey, Mat trainDescriptors,
-            KeyPoint[] keypoints, EnumSet<DetectFlags> flags) {
+                                          KeyPoint[] keypoints, EnumSet<DetectFlags> flags) {
         if (flags == null) {
             flags = EnumSet.noneOf(DetectFlags.class);
         }

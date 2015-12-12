@@ -21,5 +21,7 @@ public interface IActionUtil {
 
     public MyCapture getCapture();
 
+    public boolean getPicture(Mat dest);
+
     public void updateConsole() throws InterruptedException;
 }

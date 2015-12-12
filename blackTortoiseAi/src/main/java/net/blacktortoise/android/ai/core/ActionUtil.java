@@ -13,7 +13,7 @@ import org.opencv.core.Mat;
 
 import android.os.Handler;
 
-public class ActionUtil implements IActionUtil {
+public class ActionUtil implements IActionUtil, MyCapture.IMyCaptureListener {
     public static interface IActionUtilListener {
         public void onUpdateConsole(ConsoleDto dto);
     }
@@ -36,8 +36,10 @@ public class ActionUtil implements IActionUtil {
 
     private IActionUtilListener mListener;
 
+    private Mat mPicture = new Mat();
+
     public ActionUtil(WorkCaches workCaches, MyCapture myCapture, TagDetector tagDetector,
-            BlackTortoiseServiceWrapperEx serviceWrapper, IActionUtilListener listener) {
+                      BlackTortoiseServiceWrapperEx serviceWrapper, IActionUtilListener listener) {
         super();
         mWorkCaches = workCaches;
         mMyCapture = myCapture;
@@ -76,11 +78,6 @@ public class ActionUtil implements IActionUtil {
     }
 
     @Override
-    public MyCapture getCapture() {
-        return mMyCapture;
-    }
-
-    @Override
     public void updateConsole() throws InterruptedException {
         if (mListener != null) {
             final ConsoleDto dto = new ConsoleDto();
@@ -109,4 +106,27 @@ public class ActionUtil implements IActionUtil {
         mResultMat = resultMat;
     }
 
+    @Override
+    public MyCapture getCapture() {
+        return mMyCapture;
+    }
+
+    @Override
+    public boolean getPicture(Mat dest) {
+        if (mPicture.width() > 0 && mPicture.height() > 0) {
+            synchronized (mPicture) {
+                mPicture.copyTo(dest);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void onTakePicture(Mat mat) {
+        synchronized (mPicture) {
+            mat.copyTo(mPicture);
+        }
+    }
 }

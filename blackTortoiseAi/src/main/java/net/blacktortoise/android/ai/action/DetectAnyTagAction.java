@@ -31,7 +31,7 @@ public class DetectAnyTagAction implements IAction<Integer, List<TagDetectResult
         Mat capMat = workCaches.getWorkMat(sM4Seq);
         List<TagDetectResult> results = new ArrayList<TagDetectResult>();
         do {
-            if (util.getCapture().takePicture(capMat)) {
+            if (util.getPicture(capMat)) {
 
                 // ======================
                 { // Tag detection

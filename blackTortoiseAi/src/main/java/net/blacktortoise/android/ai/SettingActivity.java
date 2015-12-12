@@ -11,6 +11,7 @@ import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 
 import android.app.Activity;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -76,12 +77,11 @@ public class SettingActivity extends Activity {
         {
             List<String> sizeStrs = new ArrayList<String>();
             {
-                VideoCapture mCapture = new VideoCapture();
-                mCapture.open(0);
-                List<Size> sizes = mCapture.getSupportedPreviewSizes();
+                Camera mCapture = Camera.open();
+                List<Camera.Size> sizes = mCapture.getParameters().getSupportedPictureSizes();
                 mCapture.release();
-                for (Size size : sizes) {
-                    sizeStrs.add((int)size.width + "x" + (int)size.height);
+                for (Camera.Size size : sizes) {
+                    sizeStrs.add(size.width + "x" + size.height);
                 }
             }
 

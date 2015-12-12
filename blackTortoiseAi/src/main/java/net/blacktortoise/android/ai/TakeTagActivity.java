@@ -1,6 +1,7 @@
 
 package net.blacktortoise.android.ai;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -20,9 +21,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
@@ -32,15 +31,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class TakeTagActivity extends Activity implements OnClickListener {
+public class TakeTagActivity extends Activity implements OnClickListener, MyCapture.IMyCaptureListener {
     public static final String EXTRA_TEST_MODE = "testMode";
-
-    private static final int EVENT_CAPTURE = 1;
 
     private WorkCaches mWorkCaches;
 
@@ -62,20 +62,14 @@ public class TakeTagActivity extends Activity implements OnClickListener {
 
     private int mMipmapLevel = Constants.MIPMAP_LEVEL;
 
-    private static Handler sHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
-            TakeTagActivity target = (TakeTagActivity)msg.obj;
-            if (msg.what == EVENT_CAPTURE) {
-                target.updateCapture();
-                obtainMessage(EVENT_CAPTURE, target).sendToTarget();
-            }
-        }
-    };
+    private MyPreferences mPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_take_tag);
+
+        mPref = new MyPreferences(this);
 
         mBitmaps = new ArrayList<Bitmap>();
         mWorkCaches = new WorkCaches();
@@ -97,6 +91,40 @@ public class TakeTagActivity extends Activity implements OnClickListener {
         }
 
         findViewById(R.id.saveButton).setOnClickListener(this);
+
+
+        SurfaceView surfaceView = new SurfaceView(this);
+        addContentView(surfaceView, new ViewGroup.LayoutParams(1, 1));
+        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                try {
+                    mMyCapture = new MyCapture(mWorkCaches);
+                    mMyCapture.open(holder, mPref.isRotateCamera(), mPref.isReverseCamera(),
+                            mPref.getPreviewSizeAsSize());
+                    mMyCapture.setMyCaptureListener(TakeTagActivity.this);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                if (mMyCapture != null) {
+                    try {
+                        mMyCapture.release();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    mMyCapture = null;
+                }
+            }
+        });
     }
 
     @Override
@@ -114,11 +142,6 @@ public class TakeTagActivity extends Activity implements OnClickListener {
         {
             mTagDetector = pref.getTagDetectorAlgorism().createTagDetector();
             mTagDetector.setGoodThreshold(pref.getGoodThreshold());
-            VideoCapture capture = new VideoCapture();
-            mMyCapture = new MyCapture(mWorkCaches, capture);
-            mMyCapture.open(pref.isRotateCamera(), pref.isReverseCamera(),
-                    pref.getPreviewSizeAsSize());
-            sHandler.obtainMessage(EVENT_CAPTURE, TakeTagActivity.this).sendToTarget();
         }
     }
 
@@ -127,11 +150,6 @@ public class TakeTagActivity extends Activity implements OnClickListener {
         super.onPause();
         mCaptureImageView.setImageBitmap(null);
         mWorkCaches.release();
-        if (mMyCapture != null) {
-            mMyCapture.release();
-            mMyCapture = null;
-        }
-        sHandler.removeMessages(EVENT_CAPTURE);
     }
 
     private TagDetector mTagDetector;
@@ -144,76 +162,74 @@ public class TakeTagActivity extends Activity implements OnClickListener {
         int takeMatchNum = 0;
     }
 
-    private void updateCapture() {
-        Mat m4 = mWorkCaches.getWorkMat(mSeqCapMat);
-        if (mMyCapture.takePicture(m4)) {
-            Rect rect = new Rect((int)(m4.width() / 4f), (int)(m4.height() / 4f), m4.width() / 2,
-                    m4.height() / 2);
-            if (mTagTaker.resetMatch) {
-                mTagTaker.resetMatch = false;
-                mTagTaker.takeMatchNum = 5;
-                mTagDetector.removeTagItem(0);
-                mTagItem = new TagItem(rect.width, rect.height);
-                mTagDetector.putTagItem(0, mTagItem);
-                mBitmaps.clear();
+    @Override
+    public void onTakePicture(Mat m4) {
+        Rect rect = new Rect((int)(m4.width() / 4f), (int)(m4.height() / 4f), m4.width() / 2,
+                m4.height() / 2);
+        if (mTagTaker.resetMatch) {
+            mTagTaker.resetMatch = false;
+            mTagTaker.takeMatchNum = 5;
+            mTagDetector.removeTagItem(0);
+            mTagItem = new TagItem(rect.width, rect.height);
+            mTagDetector.putTagItem(0, mTagItem);
+            mBitmaps.clear();
 
-                double rate = Math.sqrt(Constants.MIPMAP_RATE);
-                int rw = m4.width();
-                int rh = m4.height();
+            double rate = Math.sqrt(Constants.MIPMAP_RATE);
+            int rw = m4.width();
+            int rh = m4.height();
 
-                for (int i = 0; i < mMipmapLevel; i++) {
-                    Rect r = new Rect((m4.width() - rw) / 2, (m4.height() - rh) / 2, rw, rh);
-                    Mat tmp = mWorkCaches.getWorkMat(mSeqResizeMat, r.width, r.height, m4.type());
-                    {
-                        Imgproc.resize(m4, tmp, new Size(r.width, r.height));
-                        Bitmap bitmap = Bitmap.createBitmap(tmp.width(), tmp.height(),
-                                Config.ARGB_8888);
-                        Utils.matToBitmap(tmp, bitmap);
-                        mBitmaps.add(bitmap);
-                        mTagDetector.upgradeTagItem(mTagItem, bitmap);
-                    }
-
-                    rw = (int)(rw / rate);
-                    rh = (int)(rh / rate);
-                    if (rw == 0 || rh == 0) {
-                        break;
-                    }
-                }
-
-            }
-            // if (mTagTaker.takeMatchNum > 0) { // Extract keypoints for
-            // // tag
-            // mTagTaker.takeMatchNum--;
-            // Mat tmp = m4.submat(rect);
-            // mTagDetector.upgradeTagItem(mTagDetector.getTagItem(0), tmp);
-            // {
-            // Bitmap bitmap = Bitmap
-            // .createBitmap(tmp.width(), tmp.height(), Config.ARGB_8888);
-            // Utils.matToBitmap(tmp, bitmap);
-            // mBitmaps.add(bitmap);
-            // }
-            // }
-
-            // ======================
-
-            { // Tag detection
-                Mat resultMat = mWorkCaches.getWorkMat(5, m4.height(), m4.width(), m4.type());
-                m4.copyTo(resultMat);
+            for (int i = 0; i < mMipmapLevel; i++) {
+                Rect r = new Rect((m4.width() - rw) / 2, (m4.height() - rh) / 2, rw, rh);
+                Mat tmp = mWorkCaches.getWorkMat(mSeqResizeMat, r.width, r.height, m4.type());
                 {
-                    Core.rectangle(m4, new Point(rect.x, rect.y), new Point(rect.x + rect.width,
-                            rect.y + rect.height), new Scalar(1, 1, 1, 1));
+                    Imgproc.resize(m4, tmp, new Size(r.width, r.height));
+                    Bitmap bitmap = Bitmap.createBitmap(tmp.width(), tmp.height(),
+                            Config.ARGB_8888);
+                    Utils.matToBitmap(tmp, bitmap);
+                    mBitmaps.add(bitmap);
+                    mTagDetector.upgradeTagItem(mTagItem, bitmap);
                 }
-                Bitmap bm = mWorkCaches.getWorkBitmap(0, m4.cols(), m4.rows());
-                Utils.matToBitmap(m4, bm);
-                TagDetectResult result = mTagDetector.detectTag(m4, resultMat, 0,
-                        EnumSet.of(DetectFlags.RECORD_LEVELS));
-                Utils.matToBitmap(resultMat, bm);
-                mCaptureImageView.setImageBitmap(bm);
-                if (result != null) {
-                    mDetectingLevelText.setText(makeString(result.getDetectedLevels()));
-                } else {
-                    mDetectingLevelText.setText("");
+
+                rw = (int)(rw / rate);
+                rh = (int)(rh / rate);
+                if (rw == 0 || rh == 0) {
+                    break;
                 }
+            }
+
+        }
+        // if (mTagTaker.takeMatchNum > 0) { // Extract keypoints for
+        // // tag
+        // mTagTaker.takeMatchNum--;
+        // Mat tmp = m4.submat(rect);
+        // mTagDetector.upgradeTagItem(mTagDetector.getTagItem(0), tmp);
+        // {
+        // Bitmap bitmap = Bitmap
+        // .createBitmap(tmp.width(), tmp.height(), Config.ARGB_8888);
+        // Utils.matToBitmap(tmp, bitmap);
+        // mBitmaps.add(bitmap);
+        // }
+        // }
+
+        // ======================
+
+        { // Tag detection
+            Mat resultMat = mWorkCaches.getWorkMat(5, m4.height(), m4.width(), m4.type());
+            m4.copyTo(resultMat);
+            {
+//                Imgproc.rectangle(m4, new Point(rect.x, rect.y), new Point(rect.x + rect.width,
+//                        rect.y + rect.height), new Scalar(1, 1, 1, 1));
+            }
+            Bitmap bm = mWorkCaches.getWorkBitmap(0, m4.cols(), m4.rows());
+            Utils.matToBitmap(m4, bm);
+            TagDetectResult result = mTagDetector.detectTag(m4, resultMat, 0,
+                    EnumSet.of(DetectFlags.RECORD_LEVELS));
+            Utils.matToBitmap(resultMat, bm);
+            mCaptureImageView.setImageBitmap(bm);
+            if (result != null) {
+                mDetectingLevelText.setText(makeString(result.getDetectedLevels()));
+            } else {
+                mDetectingLevelText.setText("");
             }
         }
     }

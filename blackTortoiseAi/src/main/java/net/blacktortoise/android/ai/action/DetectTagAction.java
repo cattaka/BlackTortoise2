@@ -40,7 +40,7 @@ public class DetectTagAction implements IAction<DetectTagAction.DetectTagArgs, T
         Mat capMat = workCaches.getWorkMat(sM4Seq);
         TagDetectResult result = null;
         do {
-            if (util.getCapture().takePicture(capMat)) {
+            if (util.getPicture(capMat)) {
 
                 // ======================
                 { // Tag detection
