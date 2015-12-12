@@ -81,7 +81,7 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 17 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="libgeppa-1.0.0" level="project" />
-    <orderEntry type="library" exported="" name="physicaloid-1.0.1" level="project" />
+    <orderEntry type="library" exported="" name="libgeppa-1.0.1" level="project" />
+    <orderEntry type="library" exported="" name="physicaloid-1.0.2" level="project" />
   </component>
 </module>
