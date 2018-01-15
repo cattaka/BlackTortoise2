@@ -1,15 +1,6 @@
 
 package net.blacktortoise.android.ai;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.blacktortoise.android.ai.core.MyPreferences;
-import net.blacktortoise.android.ai.core.TagDetectorAlgorism;
-
-import org.opencv.core.Size;
-import org.opencv.highgui.VideoCapture;
-
 import android.app.Activity;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -20,6 +11,12 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import net.blacktortoise.android.ai.core.MyPreferences;
+import net.blacktortoise.android.ai.core.TagDetectorAlgorism;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SettingActivity extends Activity {
     private Switch mRotateCameraView;
@@ -58,12 +55,12 @@ public class SettingActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
 
-        mRotateCameraView = (Switch)findViewById(R.id.rotateCameraSwitch);
-        mReverseCameraView = (Switch)findViewById(R.id.reverseCameraSwitch);
-        mPreviewSizeView = (Spinner)findViewById(R.id.previewSizeSpinner);
-        mTagDetectorAlgorismView = (Spinner)findViewById(R.id.tagDetectorAlgorismSpinner);
-        mGoodThresholdText = (TextView)findViewById(R.id.goodThresholdText);
-        mGoodThresholdBar = (SeekBar)findViewById(R.id.goodThresholdBar);
+        mRotateCameraView = (Switch) findViewById(R.id.rotateCameraSwitch);
+        mReverseCameraView = (Switch) findViewById(R.id.reverseCameraSwitch);
+        mPreviewSizeView = (Spinner) findViewById(R.id.previewSizeSpinner);
+        mTagDetectorAlgorismView = (Spinner) findViewById(R.id.tagDetectorAlgorismSpinner);
+        mGoodThresholdText = (TextView) findViewById(R.id.goodThresholdText);
+        mGoodThresholdBar = (SeekBar) findViewById(R.id.goodThresholdBar);
 
         mGoodThresholdBar.setOnSeekBarChangeListener(mGoodThresholdBarListener);
 
@@ -101,7 +98,7 @@ public class SettingActivity extends Activity {
             mReverseCameraView.setChecked(mPreferences.isReverseCamera());
             setSelection(mPreviewSizeView, mPreferences.getPreviewSize());
             setSelection(mTagDetectorAlgorismView, mPreferences.getTagDetectorAlgorism());
-            mGoodThresholdBar.setProgress((int)(mPreferences.getGoodThreshold() * 100));
+            mGoodThresholdBar.setProgress((int) (mPreferences.getGoodThreshold() * 100));
         }
     }
 
@@ -123,9 +120,9 @@ public class SettingActivity extends Activity {
         mPreferences.putRotateCamera(mRotateCameraView.isChecked());
         mPreferences.putReverseCamera(mReverseCameraView.isChecked());
         mPreferences.putPreviewSize(String.valueOf(mPreviewSizeView.getSelectedItem()));
-        mPreferences.putTagDetectorAlgorism((TagDetectorAlgorism)mTagDetectorAlgorismView
+        mPreferences.putTagDetectorAlgorism((TagDetectorAlgorism) mTagDetectorAlgorismView
                 .getSelectedItem());
-        mPreferences.putGoodThreshold((float)mGoodThresholdBar.getProgress() / 100f);
+        mPreferences.putGoodThreshold((float) mGoodThresholdBar.getProgress() / 100f);
         mPreferences.commit();
         mPreferences = null;
     }

@@ -1,9 +1,9 @@
 
 package net.blacktortoise.android.ai.tagdetector;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
+import android.graphics.Bitmap;
+import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 
 import net.blacktortoise.android.ai.Constants;
 import net.blacktortoise.android.ai.model.TagItemModel;
@@ -14,23 +14,24 @@ import net.blacktortoise.android.ai.util.WorkCaches;
 import org.opencv.android.Utils;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
+import org.opencv.core.CvException;
 import org.opencv.core.CvType;
+import org.opencv.core.DMatch;
+import org.opencv.core.KeyPoint;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDMatch;
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
-import org.opencv.features2d.DMatch;
 import org.opencv.features2d.DescriptorExtractor;
 import org.opencv.features2d.DescriptorMatcher;
 import org.opencv.features2d.FeatureDetector;
-import org.opencv.features2d.KeyPoint;
 import org.opencv.imgproc.Imgproc;
 
-import android.graphics.Bitmap;
-import android.util.SparseArray;
-import android.util.SparseBooleanArray;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 public class TagDetector {
     public enum DetectFlags {
@@ -147,7 +148,7 @@ public class TagDetector {
             { // Draw Keypoints
                 Scalar color = new Scalar(0xFF, 0xFF, 0xFF, 0xFF);
                 for (KeyPoint kp : keypoints) {
-                    Core.circle(resultMat, kp.pt, (int)(kp.size / 8), color, 1);
+                    Imgproc.circle(resultMat, kp.pt, (int) (kp.size / 8), color, 1);
                 }
             }
         }
@@ -180,7 +181,7 @@ public class TagDetector {
                 { // Draw Keypoints
                     Scalar color = new Scalar(0xFF, 0xFF, 0xFF, 0xFF);
                     for (KeyPoint kp : keypoints) {
-                        Core.circle(resultMat, kp.pt, (int)(kp.size / 8), color, 1);
+                        Imgproc.circle(resultMat, kp.pt, (int) (kp.size / 8), color, 1);
                     }
                 }
             }
@@ -216,14 +217,14 @@ public class TagDetector {
             for (MatOfDMatch mm : matches) {
                 // DMatch[] m = mm.toArray();
                 int cn = mm.channels();
-                int num = (int)mm.total();
+                int num = (int) mm.total();
                 DMatch[] m = new DMatch[num];
                 if (num >= 2) {
                     float buff[] = new float[num * cn];
                     mm.get(0, 0, buff); // TODO: check ret val!
                     for (int i = 0; i < num; i++)
-                        m[i] = new DMatch((int)buff[cn * i + 0], (int)buff[cn * i + 1],
-                                (int)buff[cn * i + 2], buff[cn * i + 3]);
+                        m[i] = new DMatch((int) buff[cn * i + 0], (int) buff[cn * i + 1],
+                                (int) buff[cn * i + 2], buff[cn * i + 3]);
 
                     if (m[0].distance < mGoodThreshold * m[1].distance) {
                         good_matches.add(m[0]);
@@ -237,13 +238,13 @@ public class TagDetector {
                     for (MatOfDMatch mm : matches) {
                         // DMatch[] m = mm.toArray();
                         int cn = mm.channels();
-                        int num = (int)mm.total();
+                        int num = (int) mm.total();
                         if (num > 0) {
                             float buff[] = new float[num * cn];
                             mm.get(0, 0, buff); // TODO: check ret val!
                             for (int i = 0; i < num; i++) {
-                                DMatch m = new DMatch((int)buff[cn * i + 0], (int)buff[cn * i + 1],
-                                        (int)buff[cn * i + 2], buff[cn * i + 3]);
+                                DMatch m = new DMatch((int) buff[cn * i + 0], (int) buff[cn * i + 1],
+                                        (int) buff[cn * i + 2], buff[cn * i + 3]);
                                 if (maxDistance < m.distance) {
                                     maxDistance = m.distance;
                                 }
@@ -280,7 +281,12 @@ public class TagDetector {
                         new Point(frame.width, frame.height), //
                         new Point(0, frame.height));
                 dstMop = new MatOfPoint2f(srcPt);
-                Core.perspectiveTransform(srcMop, dstMop, homography);
+                try {
+                    Core.perspectiveTransform(srcMop, dstMop, homography);
+                } catch (CvException e) {
+                    // FIXME
+                    dstMop = null;
+                }
             }
             if (resultMat != null) {
                 if (dstMop != null) { // Draw line
@@ -307,23 +313,23 @@ public class TagDetector {
                     for (DMatch m : good_matches) {
                         KeyPoint kp = keypoints[m.trainIdx];
                         Scalar color = new Scalar(0xFF * m.distance / maxDistance, 0xFF, 0, 0);
-                        Core.circle(resultMat, kp.pt, (int)(kp.size / 8), color, -1);
+                        Imgproc.circle(resultMat, kp.pt, (int) (kp.size / 8), color, -1);
                     }
                 }
             }
         }
         if (goodPts.size() >= 1) {
-            Point[] pts = new Point[] {
+            Point[] pts = new Point[]{
                     new Point(), new Point(), new Point(), new Point()
             };
             calcAverage(pts, goodPts);
             TagDetectResult result = new TagDetectResult(tagKey, pts);
             if (resultMat != null) {
                 Scalar color = new Scalar(0xFF, 0xFF, 0, 0);
-                Core.line(resultMat, pts[0], pts[1], color);
-                Core.line(resultMat, pts[1], pts[2], color);
-                Core.line(resultMat, pts[2], pts[3], color);
-                Core.line(resultMat, pts[3], pts[0], color);
+                Imgproc.line(resultMat, pts[0], pts[1], color);
+                Imgproc.line(resultMat, pts[1], pts[2], color);
+                Imgproc.line(resultMat, pts[2], pts[3], color);
+                Imgproc.line(resultMat, pts[3], pts[0], color);
             }
             result.setDetectedLevels(detectedLevels);
             return result;

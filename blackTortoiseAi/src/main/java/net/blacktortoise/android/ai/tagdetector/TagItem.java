@@ -1,11 +1,11 @@
 
 package net.blacktortoise.android.ai.tagdetector;
 
+import org.opencv.core.KeyPoint;
+import org.opencv.core.Mat;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.opencv.core.Mat;
-import org.opencv.features2d.KeyPoint;
 
 public class TagItem {
     public static class TagItemFrame {

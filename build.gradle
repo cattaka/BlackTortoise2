@@ -2,10 +2,10 @@
 buildscript {
     repositories {
         jcenter()
+        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
-        classpath 'com.uphyca.gradle:gradle-android-apt-plugin:0.9.+'
     }
 }
 
@@ -15,5 +15,6 @@ allprojects {
         maven {
             url "http://dl.bintray.com/cattaka/maven"
         }
+        google()
     }
 }
